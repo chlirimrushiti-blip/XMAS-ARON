@@ -1,0 +1,947 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>XMAS ARON</title>
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+
+html,body{
+  height:100%;
+}
+
+body{
+  background:radial-gradient(circle at top,#ff4b4b,#7a0000);
+  font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  color:#fff;
+}
+
+/* layout base */
+#app{
+  min-height:100vh;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+}
+
+#titlebar{
+  padding:10px 10px 4px;
+  text-align:center;
+  font-size:32px;
+  font-weight:700;
+}
+
+#titlebar span{margin:0 4px;}
+
+#content{
+  flex:1;
+  width:100%;
+  display:flex;
+  justify-content:center;
+  align-items:flex-start;
+  padding:8px;
+}
+
+#menu,#screen{
+  width:100%;
+  max-width:900px;
+}
+
+.hidden{display:none;}
+
+/* bottoni menu */
+.btn-main{
+  display:block;
+  width:100%;
+  max-width:420px;
+  margin:6px auto;
+  padding:14px 18px;
+  background:linear-gradient(180deg,#ffb067,#ff6a3b);
+  color:#fff;
+  border-radius:18px;
+  border:4px solid #000;
+  box-shadow:0 5px 0 #5c0000;
+  font-size:20px;
+  cursor:pointer;
+}
+.btn-main:active{
+  transform:translateY(2px);
+  box-shadow:0 2px 0 #5c0000;
+}
+
+/* bottoni gioco */
+.btn-game{
+  padding:8px 14px;
+  margin:4px;
+  border-radius:14px;
+  border:3px solid #000;
+  background:linear-gradient(180deg,#ffe8a0,#ffb347);
+  box-shadow:0 3px 0 #c27b00;
+  font-size:16px;
+  cursor:pointer;
+}
+.btn-row{
+  margin:6px 0 6px;
+  display:flex;
+  flex-wrap:wrap;
+  justify-content:center;
+}
+
+/* back */
+.back-btn{
+  position:fixed;
+  top:8px;
+  left:8px;
+  padding:6px 10px;
+  border-radius:12px;
+  border:3px solid #000;
+  background:linear-gradient(180deg,#4dabff,#0066ff);
+  color:#fff;
+  box-shadow:0 4px 0 #003366;
+  cursor:pointer;
+  z-index:5;
+}
+
+/* contenitore gioco */
+.game-wrapper{
+  margin-top:42px;
+  text-align:center;
+  padding-bottom:16px;
+}
+.game-title{
+  font-size:24px;
+  margin-bottom:4px;
+}
+.game-sub{
+  font-size:15px;
+  opacity:0.9;
+}
+
+/* Trova il regalo */
+.gift-area{
+  margin:14px auto 6px;
+  max-width:320px;
+  display:grid;
+  gap:6px;
+}
+.gift-btn{
+  width:70px;
+  height:70px;
+  font-size:32px;
+  border-radius:14px;
+  border:3px solid #000;
+  background:#ffeec0;
+  cursor:pointer;
+}
+
+/* Slitta */
+#slit{
+  margin:14px auto;
+  display:block;
+  border-radius:18px;
+  border:4px solid #000;
+}
+
+/* Memory */
+.memory-grid{
+  margin:14px auto;
+  max-width:320px;
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:6px;
+}
+.mem-card{
+  width:70px;
+  height:70px;
+  border-radius:14px;
+  border:3px solid #000;
+  background:#ffe6ff;
+  font-size:32px;
+  cursor:pointer;
+}
+
+/* Puzzle numeri */
+.puzzle-area{
+  margin:12px auto;
+  max-width:320px;
+  display:grid;
+  gap:6px;
+}
+.puzzle-cell{
+  width:70px;
+  height:70px;
+  border-radius:14px;
+  border:3px solid #000;
+  background:#e0ffe8;
+  font-size:24px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  cursor:pointer;
+  color:#000;
+  font-weight:700;
+  text-shadow:0 1px 0 #fff;
+}
+.puzzle-cell.selected{
+  outline:3px solid #000;
+}
+
+/* Decora */
+.decor-base{
+  margin:10px auto 4px;
+  width:240px;
+  height:240px;
+  border-radius:18px;
+  border:4px solid #000;
+  position:relative;
+  background:#003015;
+  overflow:hidden;
+}
+.decor-tree{
+  position:absolute;
+  font-size:120px;
+  left:65px;
+  top:60px;
+}
+.decor-emoji-item{
+  position:absolute;
+  font-size:26px;
+  cursor:move;
+}
+.decor-toolbar{
+  display:flex;
+  justify-content:center;
+  flex-wrap:wrap;
+}
+.decor-tool-emoji{
+  width:52px;
+  height:52px;
+  margin:4px;
+  border-radius:12px;
+  border:3px solid #000;
+  background:#fff;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:26px;
+  cursor:grab;
+}
+
+/* Palline */
+.bb-area{
+  margin:14px auto;
+  width:320px;
+  height:320px;
+  border-radius:18px;
+  border:4px solid #000;
+  background:#1a001f;
+  position:relative;
+  overflow:hidden;
+}
+.bb-ball{
+  position:absolute;
+  font-size:34px;
+  top:300px;
+}
+
+/* Acchiappa biscotti */
+.catch-area{
+  margin:14px auto 4px;
+  width:320px;
+  height:320px;
+  border-radius:18px;
+  border:4px solid #000;
+  background:#221b14;
+  position:relative;
+  overflow:hidden;
+}
+#catch-player{
+  position:absolute;
+  bottom:10px;
+  left:140px;
+  font-size:36px;
+}
+.cookie{
+  position:absolute;
+  top:0;
+  font-size:30px;
+}
+
+/* Lettera & Disegno */
+.letter-box{
+  width:90%;
+  max-width:500px;
+  height:130px;
+  border-radius:14px;
+  border:3px solid #000;
+  padding:8px;
+  font-size:15px;
+}
+.draw{
+  margin-top:10px;
+  border-radius:14px;
+  border:3px solid #000;
+  background:#fff;
+}
+
+/* Pupazzo drag */
+.pup-base{
+  margin:8px auto 0;
+  width:240px;
+  height:240px;
+  border-radius:18px;
+  border:4px solid #000;
+  position:relative;
+  background:#001544;
+  overflow:hidden;
+}
+.pup-body-fixed{
+  position:absolute;
+  width:190px;
+  left:25px;
+  bottom:-10px;
+}
+.pup-head-fixed{
+  position:absolute;
+  width:145px;
+  left:48px;
+  top:18px;
+}
+.pup-drop{
+  position:absolute;
+  width:80px;
+  height:80px;
+  cursor:move;
+}
+.pup-buttons-instance{
+  position:absolute;
+  width:22px;
+  height:46px;
+  cursor:move;
+}
+.pup-dot{
+  position:absolute;
+  width:7px;
+  height:7px;
+  border-radius:50%;
+  background:#000;
+  left:7px;
+}
+.pup-toolbar{
+  margin-top:8px;
+  display:flex;
+  justify-content:center;
+  flex-wrap:wrap;
+}
+.pup-icon{
+  width:64px;
+  height:64px;
+  margin:4px;
+  border-radius:12px;
+  border:3px solid #000;
+  background:#fff;
+  object-fit:contain;
+  cursor:grab;
+  box-shadow:0 2px 0 #333;
+}
+
+/* varie */
+.info-row{
+  margin-top:6px;
+  font-size:14px;
+}
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="titlebar">
+    <span>🎄</span><span>XMAS ARON</span><span>🎅</span>
+  </div>
+
+  <div id="content">
+    <!-- MENU -->
+    <div id="menu">
+      <button class="btn-main" onclick="openGame('gift')">🎁 Trova il Regalo</button>
+      <button class="btn-main" onclick="openGame('slitta')">🛷 Slitta di Babbo Natale</button>
+      <button class="btn-main" onclick="openGame('memory')">🧠 Memory Natale</button>
+      <button class="btn-main" onclick="openGame('decora')">🎄 Decora</button>
+      <button class="btn-main" onclick="openGame('puzzle')">🧩 Puzzle Numeri</button>
+      <button class="btn-main" onclick="openGame('suono')">🔊 Indovina il Suono</button>
+      <button class="btn-main" onclick="openGame('bubble')">🔴 Scoppia le Palline</button>
+      <button class="btn-main" onclick="openGame('catch')">🍪 Acchiappa i Biscotti</button>
+      <button class="btn-main" onclick="openGame('lettera')">✍️ Lettera & Disegno</button>
+      <button class="btn-main" onclick="openGame('pupazzo')">⛄ Crea il Pupazzo</button>
+    </div>
+
+    <!-- SCHERMATA GIOCO -->
+    <div id="screen" class="hidden"></div>
+  </div>
+</div>
+
+<script>
+// ========= AUDIO (facoltativo) =========
+function playSound(name){
+  try{
+    const a = new Audio("audio/" + name + ".mp3");
+    a.play();
+  }catch(e){}
+}
+
+// ========= GESTIONE STATI =========
+let intervals = [];
+let frameId = null;
+
+function clearGame(){
+  intervals.forEach(id => clearInterval(id));
+  intervals = [];
+  if(frameId){ cancelAnimationFrame(frameId); frameId = null; }
+  document.onmousemove = null;
+}
+
+function addInt(fn, t){
+  const id = setInterval(fn, t);
+  intervals.push(id);
+}
+
+const menu = document.getElementById("menu");
+const screen = document.getElementById("screen");
+
+function openGame(id){
+  clearGame();
+  menu.classList.add("hidden");
+  screen.classList.remove("hidden");
+  screen.innerHTML =
+    '<button class="back-btn" onclick="goBack()">⬅</button>' +
+    '<div class="game-wrapper" id="game"></div>';
+  const game = document.getElementById("game");
+
+  if(id==="gift")    buildGift(game);
+  else if(id==="slitta")  buildSlitta(game);
+  else if(id==="memory")  buildMemory(game);
+  else if(id==="decora")  buildDecora(game);
+  else if(id==="puzzle")  buildPuzzle(game);
+  else if(id==="suono")   buildSuono(game);
+  else if(id==="bubble")  buildBubble(game);
+  else if(id==="catch")   buildCatch(game);
+  else if(id==="lettera") buildLettera(game);
+  else if(id==="pupazzo") buildPupazzo(game);
+}
+
+function goBack(){
+  clearGame();
+  screen.classList.add("hidden");
+  menu.classList.remove("hidden");
+  screen.innerHTML = "";
+}
+
+// ========= GIOCO: TROVA IL REGALO (3 livelli) =========
+function buildGift(root, level){
+  if(!level) level = 1;          // 1,2,3
+  const size = 2 + level;        // 3x3, 4x4, 5x5
+  const total = size * size;
+
+  root.innerHTML =
+    '<div class="game-title">🎁 Trova il Regalo</div>' +
+    '<div class="game-sub">Livello '+level+' di 3 – clicca il pacco giusto.</div>' +
+    '<div id="gift-area" class="gift-area"></div>' +
+    '<div id="gift-msg" style="margin-top:6px;font-size:18px;font-weight:bold;"></div>';
+
+  const area = document.getElementById("gift-area");
+  const msg  = document.getElementById("gift-msg");
+
+  area.style.gridTemplateColumns = "repeat("+size+",1fr)";
+
+  const correct = Math.floor(Math.random()*total);
+  let finished = false;
+
+  for(let i=0;i<total;i++){
+    const b = document.createElement("button");
+    b.className="gift-btn";
+    b.textContent="🎁";
+    b.onclick = function(){
+      if(finished) return;
+      if(b.dataset.opened) return;
+      b.dataset.opened="1";
+
+      if(i===correct){
+        b.textContent="💛";
+        finished = true;
+        const all = area.querySelectorAll("button");
+        all.forEach(btn => btn.disabled = true);
+
+        if(level < 3){
+          msg.textContent = "Bravo! Livello "+level+" completato. Prossimo livello...";
+          setTimeout(()=>buildGift(root, level+1), 1200);
+        }else{
+          msg.textContent = "Grande! Hai finito tutti i livelli. Si ricomincia!";
+          setTimeout(()=>buildGift(root, 1), 1500);
+        }
+      }else{
+        b.textContent="❌";
+      }
+    };
+    area.appendChild(b);
+  }
+}
+
+// ========= GIOCO: SLITTA =========
+function buildSlitta(root){
+  root.innerHTML =
+    '<div class="game-title">🛷 Slitta di Babbo Natale</div>' +
+    '<div class="game-sub">Evita gli alberi e guarda quanto resisti.</div>' +
+    '<canvas id="slit" width="300" height="260"></canvas>' +
+    '<div class="info-row">Alberi schivati: <span id="slit-score">0</span></div>';
+  const cv = document.getElementById("slit");
+  const ctx = cv.getContext("2d");
+  let x = 150;
+  let trees = [];
+  let score = 0;
+  const scoreEl = document.getElementById("slit-score");
+
+  document.onmousemove = function(e){
+    const r = cv.getBoundingClientRect();
+    x = e.clientX - r.left - 14;
+  };
+
+  addInt(function(){
+    trees.push({x:Math.random()*260,y:-20});
+  },1200);
+
+  function loop(){
+    ctx.fillStyle="#001";
+    ctx.fillRect(0,0,300,260);
+
+    ctx.font="30px serif";
+    ctx.fillText("🛷", x, 240);
+
+    trees.forEach(t=>{
+      t.y += 2;
+      ctx.fillText("🎄", t.x, t.y);
+    });
+
+    const newList = [];
+    trees.forEach(t=>{
+      if(t.y > 210 && t.y < 260 && Math.abs(t.x - x) < 20){
+        score = 0;
+        scoreEl.textContent = score;
+      }
+      if(t.y > 260){
+        score++;
+        scoreEl.textContent = score;
+      }else{
+        newList.push(t);
+      }
+    });
+    trees = newList;
+
+    frameId = requestAnimationFrame(loop);
+  }
+  loop();
+}
+
+// ========= GIOCO: MEMORY con nuovo round =========
+function buildMemory(root){
+  root.innerHTML =
+    '<div class="game-title">🧠 Memory Natale</div>' +
+    '<div class="game-sub">Trova tutte le coppie. Quando hai finito parte un nuovo gioco.</div>' +
+    '<div id="mem-grid" class="memory-grid"></div>';
+  const grid = document.getElementById("mem-grid");
+  const icons = ["🎄","🎁","⭐","⛄","🔔","❄"];
+  let deck = icons.concat(icons).sort(()=>Math.random()-0.5);
+  let first = null;
+  let lock = false;
+  const totalPairs = icons.length;
+  let matches = 0;
+
+  deck.forEach(function(sym){
+    const b = document.createElement("button");
+    b.className="mem-card";
+    b.textContent="❓";
+    b.dataset.sym = sym;
+    b.onclick = function(){
+      if(lock || b.textContent!=="❓") return;
+      b.textContent = sym;
+      if(!first){
+        first = b;
+      }else{
+        lock = true;
+        if(first.dataset.sym===sym){
+          matches++;
+          first = null;
+          lock = false;
+          if(matches === totalPairs){
+            setTimeout(()=>buildMemory(root), 900);
+          }
+        }else{
+          setTimeout(function(){
+            first.textContent="❓";
+            b.textContent="❓";
+            first = null;
+            lock = false;
+          },600);
+        }
+      }
+    };
+    grid.appendChild(b);
+  });
+}
+
+// ========= GIOCO: DECORA – emoji chiare =========
+function buildDecora(root){
+  root.innerHTML =
+    '<div class="game-title">🎄 Decora</div>' +
+    '<div class="game-sub">Trascina le decorazioni sull\'albero.</div>' +
+    '<div id="decor-base" class="decor-base">' +
+      '<div class="decor-tree">🎄</div>' +
+    '</div>' +
+    '<div class="decor-toolbar">' +
+      '<div class="decor-tool-emoji" draggable="true" data-sym="⭐">⭐</div>' +
+      '<div class="decor-tool-emoji" draggable="true" data-sym="🔔">🔔</div>' +
+      '<div class="decor-tool-emoji" draggable="true" data-sym="🎀">🎀</div>' +
+      '<div class="decor-tool-emoji" draggable="true" data-sym="🎁">🎁</div>' +
+    '</div>';
+  const base = document.getElementById("decor-base");
+
+  const tools = root.querySelectorAll(".decor-tool-emoji");
+  tools.forEach(el=>{
+    el.ondragstart = e => {
+      e.dataTransfer.setData("sym", el.dataset.sym);
+    };
+  });
+
+  base.ondragover = e => e.preventDefault();
+  base.ondrop = e => {
+    e.preventDefault();
+    const sym = e.dataTransfer.getData("sym");
+    if(!sym) return;
+    const div = document.createElement("div");
+    div.className = "decor-emoji-item";
+    div.textContent = sym;
+    div.style.left = (e.offsetX - 13) + "px";
+    div.style.top  = (e.offsetY - 13) + "px";
+    base.appendChild(div);
+    makeDraggable(div, base);
+  };
+}
+
+// ========= GIOCO: PUZZLE NUMERI (2x2,3x3,4x4) =========
+function buildPuzzle(root){
+  root.innerHTML =
+    '<div class="game-title">🧩 Puzzle Numeri</div>' +
+    '<div class="game-sub">Ordina i numeri da 1 a N. Tocca due caselle per scambiarle.</div>' +
+    '<div class="btn-row">' +
+      '<button class="btn-game" onclick="startPuzzle(2)">2x2</button>' +
+      '<button class="btn-game" onclick="startPuzzle(3)">3x3</button>' +
+      '<button class="btn-game" onclick="startPuzzle(4)">4x4</button>' +
+    '</div>' +
+    '<div id="puzzle-area" class="puzzle-area"></div>' +
+    '<div id="puzzle-msg" class="info-row"></div>';
+}
+
+function startPuzzle(n){
+  const area = document.getElementById("puzzle-area");
+  const msg  = document.getElementById("puzzle-msg");
+  if(!area) return;
+  area.innerHTML = "";
+  msg.textContent = "Obiettivo: ordina da 1 a " + (n*n);
+  area.style.gridTemplateColumns = "repeat(" + n + ",1fr)";
+
+  let arr = [];
+  for(let i=1;i<=n*n;i++) arr.push(i);
+  arr.sort(()=>Math.random()-0.5);
+
+  let firstIndex = null;
+  let finished = false;
+
+  function checkWin(){
+    for(let i=0;i<arr.length;i++){
+      if(arr[i] !== i+1) return false;
+    }
+    return true;
+  }
+
+  function draw(){
+    area.innerHTML = "";
+    arr.forEach(function(num,i){
+      const c = document.createElement("div");
+      c.className="puzzle-cell";
+      c.textContent=num;
+      if(firstIndex===i) c.classList.add("selected");
+      c.onclick = function(){
+        if(finished) return;
+        if(firstIndex===null){
+          firstIndex = i;
+          draw();
+        }else if(firstIndex===i){
+          firstIndex = null;
+          draw();
+        }else{
+          const tmp = arr[firstIndex];
+          arr[firstIndex] = arr[i];
+          arr[i] = tmp;
+          firstIndex = null;
+          draw();
+          if(checkWin()){
+            finished = true;
+            msg.textContent = "Bravo! Puzzle completato! Nuovo schema...";
+            setTimeout(()=>{ finished=false; startPuzzle(n); }, 1000);
+          }
+        }
+      };
+      area.appendChild(c);
+    });
+  }
+  draw();
+}
+
+// ========= GIOCO: SUONI (quiz) =========
+function buildSuono(root){
+  root.innerHTML =
+    '<div class="game-title">🔊 Indovina il Suono</div>' +
+    '<div class="game-sub">Premi "Nuovo suono", ascolta e scegli la risposta giusta.</div>' +
+    '<div class="btn-row"><button class="btn-game" onclick="playRandomSound()">Nuovo suono ▶</button></div>' +
+    '<div class="btn-row">' +
+      '<button class="btn-game" onclick="guessSound(\'bell\')">Campanelle</button>' +
+      '<button class="btn-game" onclick="guessSound(\'hoho\')">Ho-ho-ho</button>' +
+      '<button class="btn-game" onclick="guessSound(\'win\')">Jingle</button>' +
+    '</div>' +
+    '<div class="info-row">Punti: <span id="snd-score">0</span></div>' +
+    '<div id="snd-msg" class="info-row"></div>';
+  window._currentSound = null;
+}
+
+function playRandomSound(){
+  const options = ["bell","hoho","win"];
+  const rnd = options[Math.floor(Math.random()*options.length)];
+  window._currentSound = rnd;
+  playSound(rnd);
+  const m = document.getElementById("snd-msg");
+  if(m) m.textContent = "Ascolta e scegli...";
+}
+
+function guessSound(ans){
+  const msg = document.getElementById("snd-msg");
+  const scoreEl = document.getElementById("snd-score");
+  if(!scoreEl || !msg) return;
+  if(!window._currentSound){
+    msg.textContent = "Prima premi ▶ per ascoltare.";
+    return;
+  }
+  let score = parseInt(scoreEl.textContent || "0",10);
+  if(ans === window._currentSound){
+    msg.textContent = "Bravo! Era proprio quello! 🎉";
+    score += 5;
+  }else{
+    msg.textContent = "No, riprova. Era un altro suono.";
+    if(score > 0) score -= 2;
+  }
+  scoreEl.textContent = score;
+  window._currentSound = null;
+}
+
+// ========= GIOCO: PALLINE =========
+function buildBubble(root){
+  root.innerHTML =
+    '<div class="game-title">🔴 Scoppia le Palline</div>' +
+    '<div class="game-sub">Clicca le palline prima che salgano via.</div>' +
+    '<div id="bb-area" class="bb-area"></div>';
+  const area = document.getElementById("bb-area");
+
+  addInt(function(){
+    const b = document.createElement("div");
+    b.className="bb-ball";
+    b.textContent="🔴";
+    b.style.left = (Math.random()*260) + "px";
+    area.appendChild(b);
+
+    let y = 300;
+    const id = setInterval(function(){
+      y -= 1;
+      b.style.top = y + "px";
+      if(y < -30){
+        b.remove();
+        clearInterval(id);
+      }
+    },20);
+
+    b.onclick = function(){
+      b.remove();
+      clearInterval(id);
+    };
+  },1000);
+}
+
+// ========= GIOCO: ACCHIAPPA BISCOTTI =========
+function buildCatch(root){
+  root.innerHTML =
+    '<div class="game-title">🍪 Acchiappa i Biscotti</div>' +
+    '<div class="game-sub">Muovi Babbo Natale con il mouse e prendi i biscotti.</div>' +
+    '<div id="catch-area" class="catch-area">' +
+      '<div id="catch-player">🎅</div>' +
+    '</div>' +
+    '<div class="info-row">Biscotti presi: <span id="cookie-score">0</span></div>';
+  const area = document.getElementById("catch-area");
+  const player = document.getElementById("catch-player");
+  const scoreEl = document.getElementById("cookie-score");
+  let score = 0;
+
+  document.onmousemove = function(e){
+    const r = area.getBoundingClientRect();
+    let x = e.clientX - r.left - 20;
+    if(x < 0) x = 0;
+    if(x > r.width-40) x = r.width-40;
+    player.style.left = x + "px";
+  };
+
+  addInt(function(){
+    const c = document.createElement("div");
+    c.className="cookie";
+    c.textContent="🍪";
+    c.style.left = (Math.random()*260) + "px";
+    area.appendChild(c);
+    let y = 0;
+    const id = setInterval(function(){
+      y += 1.5;
+      c.style.top = y + "px";
+      if(y > 280){
+        const px = parseInt(player.style.left || "0",10);
+        const cx = parseInt(c.style.left || "0",10);
+        if(Math.abs(px-cx) < 40){
+          score++;
+          scoreEl.textContent = score;
+        }
+        c.remove();
+        clearInterval(id);
+      }
+    },20);
+  },1300);
+}
+
+// ========= GIOCO: LETTERA & DISEGNO =========
+function buildLettera(root){
+  root.innerHTML =
+    '<div class="game-title">✍️ Lettera a Babbo Natale</div>' +
+    '<textarea class="letter-box" placeholder="Caro Babbo Natale..."></textarea>' +
+    '<div class="game-title" style="margin-top:10px;">🎨 Disegna</div>' +
+    '<canvas id="draw" width="300" height="220" class="draw"></canvas>' +
+    '<div class="btn-row">' +
+      '<button class="btn-game" onclick="setDrawColor(\'black\')">Nero</button>' +
+      '<button class="btn-game" onclick="setDrawColor(\'red\')">Rosso</button>' +
+      '<button class="btn-game" onclick="setDrawColor(\'blue\')">Blu</button>' +
+      '<button class="btn-game" onclick="setDrawColor(\'green\')">Verde</button>' +
+      '<button class="btn-game" onclick="clearCanvas()">Pulisci</button>' +
+    '</div>';
+  const cv = document.getElementById("draw");
+  const ctx = cv.getContext("2d");
+  let drawing = false;
+  let color = "black";
+
+  cv.onmousedown = function(){ drawing = true; };
+  cv.onmouseup = function(){ drawing = false; };
+  cv.onmouseleave = function(){ drawing = false; };
+  cv.onmousemove = function(e){
+    if(!drawing) return;
+    const r = cv.getBoundingClientRect();
+    ctx.fillStyle = color;
+    ctx.beginPath();
+    ctx.arc(e.clientX-r.left, e.clientY-r.top, 4, 0, Math.PI*2);
+    ctx.fill();
+  };
+
+  window.setDrawColor = function(c){ color = c; };
+  window.clearCanvas = function(){ ctx.clearRect(0,0,cv.width,cv.height); };
+}
+
+// ========= HELPER DRAG (pupazzo + decora) =========
+function makeDraggable(el, container){
+  let dragging = false;
+  let offsetX = 0, offsetY = 0;
+
+  el.onmousedown = function(e){
+    dragging = true;
+    const r = container.getBoundingClientRect();
+    const currentLeft = parseInt(el.style.left || "0",10);
+    const currentTop  = parseInt(el.style.top  || "0",10);
+    offsetX = e.clientX - r.left - currentLeft;
+    offsetY = e.clientY - r.top  - currentTop;
+
+    document.onmousemove = function(ev){
+      if(!dragging) return;
+      const rc = container.getBoundingClientRect();
+      let x = ev.clientX - rc.left - offsetX;
+      let y = ev.clientY - rc.top  - offsetY;
+      el.style.left = x + "px";
+      el.style.top  = y + "px";
+    };
+    document.onmouseup = function(){
+      dragging = false;
+      document.onmousemove = null;
+      document.onmouseup = null;
+    };
+    e.preventDefault();
+  };
+}
+
+// ========= GIOCO: CREA PUPAZZO (drag, pezzi più grandi) =========
+function buildPupazzo(root){
+  root.innerHTML =
+    '<div class="game-title">⛄ Crea il Pupazzo</div>' +
+    '<div class="game-sub">Trascina i pezzi nel riquadro e sistemali come vuoi.</div>' +
+    '<div id="pup-base" class="pup-base">' +
+      '<img src="img/snow_body.png" class="pup-body-fixed">' +
+      '<img src="img/snow_head.png" class="pup-head-fixed">' +
+    '</div>' +
+    '<div class="pup-toolbar">' +
+      '<img src="img/snow_hat.png"   class="pup-icon" draggable="true" data-part="hat"   title="Cappello">' +
+      '<img src="img/snow_scarf.png" class="pup-icon" draggable="true" data-part="scarf" title="Sciarpa">' +
+      '<img src="img/snow_eyes.png"  class="pup-icon" draggable="true" data-part="eyes"  title="Occhi">' +
+      '<img src="img/snow_nose.png"  class="pup-icon" draggable="true" data-part="nose"  title="Naso">' +
+      '<img src="img/snow_arms.png"  class="pup-icon" draggable="true" data-part="arms"  title="Braccia">' +
+      '<div class="pup-icon" draggable="true" data-part="buttons" title="Bottoni">●●●</div>' +
+    '</div>';
+  const base = document.getElementById("pup-base");
+
+  const icons = root.querySelectorAll(".pup-icon");
+  icons.forEach(function(icon){
+    icon.ondragstart = function(e){
+      e.dataTransfer.setData("part", icon.dataset.part);
+    };
+  });
+
+  base.ondragover = function(e){ e.preventDefault(); };
+  base.ondrop = function(e){
+    e.preventDefault();
+    const part = e.dataTransfer.getData("part");
+    if(!part) return;
+    const x = e.offsetX;
+    const y = e.offsetY;
+
+    if(part === "buttons"){
+      const box = document.createElement("div");
+      box.className = "pup-buttons-instance";
+      box.style.left = (x - 11) + "px";
+      box.style.top  = (y - 23) + "px";
+      for(let i=0;i<3;i++){
+        const d = document.createElement("div");
+        d.className = "pup-dot";
+        d.style.top = (5 + i*11) + "px";
+        box.appendChild(d);
+      }
+      base.appendChild(box);
+      makeDraggable(box, base);
+    }else{
+      const img = document.createElement("img");
+      img.src = "img/snow_" + part + ".png";
+      img.className = "pup-drop";
+      img.style.left = (x - 40) + "px";
+      img.style.top  = (y - 40) + "px";
+      base.appendChild(img);
+      makeDraggable(img, base);
+    }
+  };
+}
+</script>
+</body>
+</html>

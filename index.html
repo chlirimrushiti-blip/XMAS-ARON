@@ -214,7 +214,7 @@ body{
 .decor-emoji-item{
   position:absolute;
   font-size:26px;
-  cursor:move;
+  cursor:pointer;
 }
 .decor-toolbar{
   display:flex;
@@ -232,7 +232,7 @@ body{
   align-items:center;
   justify-content:center;
   font-size:26px;
-  cursor:grab;
+  cursor:pointer;
 }
 
 /* Palline */
@@ -319,13 +319,13 @@ body{
   position:absolute;
   width:80px;
   height:80px;
-  cursor:move;
+  cursor:pointer;
 }
 .pup-buttons-instance{
   position:absolute;
   width:22px;
   height:46px;
-  cursor:move;
+  cursor:pointer;
 }
 .pup-dot{
   position:absolute;
@@ -349,7 +349,7 @@ body{
   border:3px solid #000;
   background:#fff;
   object-fit:contain;
-  cursor:grab;
+  cursor:pointer;
   box-shadow:0 2px 0 #333;
 }
 
@@ -357,6 +357,26 @@ body{
 .info-row{
   margin-top:6px;
   font-size:14px;
+}
+
+/* FULL-SCREEN MOBILE */
+@media (max-width:600px){
+  .decor-base,
+  .pup-base,
+  .bb-area,
+  .catch-area{
+    width:90vw;
+    height:90vw;
+    max-width:420px;
+  }
+  .memory-grid,
+  .puzzle-area{
+    max-width:90vw;
+  }
+  #slit{
+    width:90vw;
+    height:70vw;
+  }
 }
 </style>
 </head>
@@ -593,42 +613,36 @@ function buildMemory(root){
   });
 }
 
-// ========= DECORA (emoji chiare) =========
+// ========= DECORA – click per aggiungere + drag touch =========
 function buildDecora(root){
   root.innerHTML =
     '<div class="game-title">🎄 Decora</div>' +
-    '<div class="game-sub">Trascina le decorazioni sull\'albero.</div>' +
+    '<div class="game-sub">Tocca una decorazione, poi trascinala sull\'albero.</div>' +
     '<div id="decor-base" class="decor-base">' +
       '<div class="decor-tree">🎄</div>' +
     '</div>' +
     '<div class="decor-toolbar">' +
-      '<div class="decor-tool-emoji" draggable="true" data-sym="⭐">⭐</div>' +
-      '<div class="decor-tool-emoji" draggable="true" data-sym="🔔">🔔</div>' +
-      '<div class="decor-tool-emoji" draggable="true" data-sym="🎀">🎀</div>' +
-      '<div class="decor-tool-emoji" draggable="true" data-sym="🎁">🎁</div>' +
+      '<div class="decor-tool-emoji" data-sym="⭐">⭐</div>' +
+      '<div class="decor-tool-emoji" data-sym="🔔">🔔</div>' +
+      '<div class="decor-tool-emoji" data-sym="🎀">🎀</div>' +
+      '<div class="decor-tool-emoji" data-sym="🎁">🎁</div>' +
     '</div>';
   const base = document.getElementById("decor-base");
-
   const tools = root.querySelectorAll(".decor-tool-emoji");
-  tools.forEach(el=>{
-    el.ondragstart = e => {
-      e.dataTransfer.setData("sym", el.dataset.sym);
-    };
-  });
 
-  base.ondragover = e => e.preventDefault();
-  base.ondrop = e => {
-    e.preventDefault();
-    const sym = e.dataTransfer.getData("sym");
-    if(!sym) return;
-    const div = document.createElement("div");
-    div.className = "decor-emoji-item";
-    div.textContent = sym;
-    div.style.left = (e.offsetX - 13) + "px";
-    div.style.top  = (e.offsetY - 13) + "px";
-    base.appendChild(div);
-    makeDraggable(div, base);
-  };
+  tools.forEach(btn=>{
+    btn.addEventListener("click", ()=>{
+      const sym = btn.dataset.sym;
+      const div = document.createElement("div");
+      div.className = "decor-emoji-item";
+      div.textContent = sym;
+      // centro grosso modo
+      div.style.left = (base.clientWidth/2 - 13) + "px";
+      div.style.top  = (base.clientHeight/2 - 13) + "px";
+      base.appendChild(div);
+      makeDraggable(div, base);
+    });
+  });
 }
 
 // ========= PUZZLE NUMERI =========
@@ -782,7 +796,7 @@ function buildBubble(root){
 function buildCatch(root){
   root.innerHTML =
     '<div class="game-title">🍪 Acchiappa i Biscotti</div>' +
-    '<div class="game-sub">Muovi Babbo Natale con il mouse e prendi i biscotti.</div>' +
+    '<div class="game-sub">Muovi Babbo Natale con il mouse o il dito e prendi i biscotti.</div>' +
     '<div id="catch-area" class="catch-area">' +
       '<div id="catch-player">🎅</div>' +
     '</div>' +
@@ -792,12 +806,23 @@ function buildCatch(root){
   const scoreEl = document.getElementById("cookie-score");
   let score = 0;
 
-  document.onmousemove = function(e){
+  function movePlayer(clientX){
     const r = area.getBoundingClientRect();
-    let x = e.clientX - r.left - 20;
+    let x = clientX - r.left - 20;
     if(x < 0) x = 0;
     if(x > r.width-40) x = r.width-40;
     player.style.left = x + "px";
+  }
+
+  // mouse
+  document.onmousemove = function(e){
+    movePlayer(e.clientX);
+  };
+  // touch
+  area.ontouchmove = function(e){
+    if(e.touches && e.touches[0]){
+      movePlayer(e.touches[0].clientX);
+    }
   };
 
   addInt(function(){
@@ -855,97 +880,101 @@ function buildLettera(root){
     ctx.fill();
   };
 
+  cv.ontouchstart = function(e){ drawing = true; e.preventDefault(); };
+  cv.ontouchend   = function(){ drawing = false; };
+  cv.ontouchmove  = function(e){
+    if(!drawing) return;
+    const t = e.touches[0];
+    const r = cv.getBoundingClientRect();
+    ctx.fillStyle = color;
+    ctx.beginPath();
+    ctx.arc(t.clientX-r.left, t.clientY-r.top, 4, 0, Math.PI*2);
+    ctx.fill();
+    e.preventDefault();
+  };
+
   window.setDrawColor = function(c){ color = c; };
   window.clearCanvas = function(){ ctx.clearRect(0,0,cv.width,cv.height); };
 }
 
-// ========= HELPER DRAG =========
+// ========= DRAG UNIFICATO (mouse + touch via pointer events) =========
 function makeDraggable(el, container){
-  let dragging = false;
   let offsetX = 0, offsetY = 0;
 
-  el.onmousedown = function(e){
-    dragging = true;
+  el.addEventListener('pointerdown', e=>{
     const r = container.getBoundingClientRect();
     const currentLeft = parseInt(el.style.left || "0",10);
     const currentTop  = parseInt(el.style.top  || "0",10);
     offsetX = e.clientX - r.left - currentLeft;
     offsetY = e.clientY - r.top  - currentTop;
 
-    document.onmousemove = function(ev){
-      if(!dragging) return;
+    el.setPointerCapture(e.pointerId);
+
+    el.onpointermove = ev=>{
       const rc = container.getBoundingClientRect();
       let x = ev.clientX - rc.left - offsetX;
       let y = ev.clientY - rc.top  - offsetY;
       el.style.left = x + "px";
       el.style.top  = y + "px";
     };
-    document.onmouseup = function(){
-      dragging = false;
-      document.onmousemove = null;
-      document.onmouseup = null;
+
+    el.onpointerup = ev=>{
+      el.onpointermove = null;
+      el.onpointerup = null;
+      el.releasePointerCapture(ev.pointerId);
     };
+
     e.preventDefault();
-  };
+  });
 }
 
-// ========= PUPAZZO =========
+// ========= PUPAZZO – click per aggiungere + drag touch =========
 function buildPupazzo(root){
   root.innerHTML =
     '<div class="game-title">⛄ Crea il Pupazzo</div>' +
-    '<div class="game-sub">Trascina i pezzi nel riquadro e sistemali come vuoi.</div>' +
+    '<div class="game-sub">Tocca un pezzo per aggiungerlo, poi trascinalo dove vuoi.</div>' +
     '<div id="pup-base" class="pup-base">' +
       '<img src="img/snow_body.png" class="pup-body-fixed">' +
       '<img src="img/snow_head.png" class="pup-head-fixed">' +
     '</div>' +
     '<div class="pup-toolbar">' +
-      '<img src="img/snow_hat.png"   class="pup-icon" draggable="true" data-part="hat"   title="Cappello">' +
-      '<img src="img/snow_scarf.png" class="pup-icon" draggable="true" data-part="scarf" title="Sciarpa">' +
-      '<img src="img/snow_eyes.png"  class="pup-icon" draggable="true" data-part="eyes"  title="Occhi">' +
-      '<img src="img/snow_nose.png"  class="pup-icon" draggable="true" data-part="nose"  title="Naso">' +
-      '<img src="img/snow_arms.png"  class="pup-icon" draggable="true" data-part="arms"  title="Braccia">' +
-      '<div class="pup-icon" draggable="true" data-part="buttons" title="Bottoni">●●●</div>' +
+      '<img src="img/snow_hat.png"   class="pup-icon" data-part="hat"   title="Cappello">' +
+      '<img src="img/snow_scarf.png" class="pup-icon" data-part="scarf" title="Sciarpa">' +
+      '<img src="img/snow_eyes.png"  class="pup-icon" data-part="eyes"  title="Occhi">' +
+      '<img src="img/snow_nose.png"  class="pup-icon" data-part="nose"  title="Naso">' +
+      '<img src="img/snow_arms.png"  class="pup-icon" data-part="arms"  title="Braccia">' +
+      '<div class="pup-icon" data-part="buttons" title="Bottoni">●●●</div>' +
     '</div>';
   const base = document.getElementById("pup-base");
-
   const icons = root.querySelectorAll(".pup-icon");
-  icons.forEach(function(icon){
-    icon.ondragstart = function(e){
-      e.dataTransfer.setData("part", icon.dataset.part);
-    };
-  });
 
-  base.ondragover = function(e){ e.preventDefault(); };
-  base.ondrop = function(e){
-    e.preventDefault();
-    const part = e.dataTransfer.getData("part");
-    if(!part) return;
-    const x = e.offsetX;
-    const y = e.offsetY;
-
-    if(part === "buttons"){
-      const box = document.createElement("div");
-      box.className = "pup-buttons-instance";
-      box.style.left = (x - 11) + "px";
-      box.style.top  = (y - 23) + "px";
-      for(let i=0;i<3;i++){
-        const d = document.createElement("div");
-        d.className = "pup-dot";
-        d.style.top = (5 + i*11) + "px";
-        box.appendChild(d);
+  icons.forEach(icon=>{
+    icon.addEventListener("click", ()=>{
+      const part = icon.dataset.part;
+      if(part === "buttons"){
+        const box = document.createElement("div");
+        box.className = "pup-buttons-instance";
+        box.style.left = (base.clientWidth/2 - 11) + "px";
+        box.style.top  = (base.clientHeight/2 - 23) + "px";
+        for(let i=0;i<3;i++){
+          const d = document.createElement("div");
+          d.className = "pup-dot";
+          d.style.top = (5 + i*11) + "px";
+          box.appendChild(d);
+        }
+        base.appendChild(box);
+        makeDraggable(box, base);
+      }else{
+        const img = document.createElement("img");
+        img.src = "img/snow_" + part + ".png";
+        img.className = "pup-drop";
+        img.style.left = (base.clientWidth/2 - 40) + "px";
+        img.style.top  = (base.clientHeight/2 - 40) + "px";
+        base.appendChild(img);
+        makeDraggable(img, base);
       }
-      base.appendChild(box);
-      makeDraggable(box, base);
-    }else{
-      const img = document.createElement("img");
-      img.src = "img/snow_" + part + ".png";
-      img.className = "pup-drop";
-      img.style.left = (x - 40) + "px";
-      img.style.top  = (y - 40) + "px";
-      base.appendChild(img);
-      makeDraggable(img, base);
-    }
-  };
+    });
+  });
 }
 
 /* ========= REGISTRA SERVICE WORKER ========= */

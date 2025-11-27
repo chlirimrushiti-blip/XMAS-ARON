@@ -4,12 +4,12 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>XMAS ARON</title>
+
+<!-- PWA -->
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#b00020">
-
 <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
 <link rel="icon" type="image/png" sizes="512x512" href="icon-512.png">
-
 
 <style>
 *{box-sizing:border-box;margin:0;padding:0;}
@@ -442,10 +442,10 @@ function goBack(){
   screen.innerHTML = "";
 }
 
-// ========= GIOCO: TROVA IL REGALO (3 livelli) =========
+// ========= TROVA IL REGALO (3 livelli) =========
 function buildGift(root, level){
-  if(!level) level = 1;          // 1,2,3
-  const size = 2 + level;        // 3x3, 4x4, 5x5
+  if(!level) level = 1;
+  const size = 2 + level;  // 3x3,4x4,5x5
   const total = size * size;
 
   root.innerHTML =
@@ -456,7 +456,6 @@ function buildGift(root, level){
 
   const area = document.getElementById("gift-area");
   const msg  = document.getElementById("gift-msg");
-
   area.style.gridTemplateColumns = "repeat("+size+",1fr)";
 
   const correct = Math.floor(Math.random()*total);
@@ -492,7 +491,7 @@ function buildGift(root, level){
   }
 }
 
-// ========= GIOCO: SLITTA =========
+// ========= SLITTA =========
 function buildSlitta(root){
   root.innerHTML =
     '<div class="game-title">🛷 Slitta di Babbo Natale</div>' +
@@ -547,7 +546,7 @@ function buildSlitta(root){
   loop();
 }
 
-// ========= GIOCO: MEMORY con nuovo round =========
+// ========= MEMORY (nuovo round) =========
 function buildMemory(root){
   root.innerHTML =
     '<div class="game-title">🧠 Memory Natale</div>' +
@@ -594,7 +593,7 @@ function buildMemory(root){
   });
 }
 
-// ========= GIOCO: DECORA – emoji chiare =========
+// ========= DECORA (emoji chiare) =========
 function buildDecora(root){
   root.innerHTML =
     '<div class="game-title">🎄 Decora</div>' +
@@ -632,7 +631,7 @@ function buildDecora(root){
   };
 }
 
-// ========= GIOCO: PUZZLE NUMERI (2x2,3x3,4x4) =========
+// ========= PUZZLE NUMERI =========
 function buildPuzzle(root){
   root.innerHTML =
     '<div class="game-title">🧩 Puzzle Numeri</div>' +
@@ -702,7 +701,7 @@ function startPuzzle(n){
   draw();
 }
 
-// ========= GIOCO: SUONI (quiz) =========
+// ========= SUONI =========
 function buildSuono(root){
   root.innerHTML =
     '<div class="game-title">🔊 Indovina il Suono</div>' +
@@ -747,7 +746,7 @@ function guessSound(ans){
   window._currentSound = null;
 }
 
-// ========= GIOCO: PALLINE =========
+// ========= PALLINE =========
 function buildBubble(root){
   root.innerHTML =
     '<div class="game-title">🔴 Scoppia le Palline</div>' +
@@ -779,7 +778,7 @@ function buildBubble(root){
   },1000);
 }
 
-// ========= GIOCO: ACCHIAPPA BISCOTTI =========
+// ========= ACCHIAPPA BISCOTTI =========
 function buildCatch(root){
   root.innerHTML =
     '<div class="game-title">🍪 Acchiappa i Biscotti</div>' +
@@ -825,7 +824,7 @@ function buildCatch(root){
   },1300);
 }
 
-// ========= GIOCO: LETTERA & DISEGNO =========
+// ========= LETTERA & DISEGNO =========
 function buildLettera(root){
   root.innerHTML =
     '<div class="game-title">✍️ Lettera a Babbo Natale</div>' +
@@ -860,7 +859,7 @@ function buildLettera(root){
   window.clearCanvas = function(){ ctx.clearRect(0,0,cv.width,cv.height); };
 }
 
-// ========= HELPER DRAG (pupazzo + decora) =========
+// ========= HELPER DRAG =========
 function makeDraggable(el, container){
   let dragging = false;
   let offsetX = 0, offsetY = 0;
@@ -890,7 +889,7 @@ function makeDraggable(el, container){
   };
 }
 
-// ========= GIOCO: CREA PUPAZZO (drag, pezzi più grandi) =========
+// ========= PUPAZZO =========
 function buildPupazzo(root){
   root.innerHTML =
     '<div class="game-title">⛄ Crea il Pupazzo</div>' +
@@ -948,17 +947,16 @@ function buildPupazzo(root){
     }
   };
 }
-<script>
-  // registra il service worker per la PWA
-  if ('serviceWorker' in navigator) {
-    window.addEventListener('load', function () {
-      navigator.serviceWorker.register('./service-worker.js')
-        .catch(function (err) {
-          console.log('Service Worker error:', err);
-        });
-    });
-  }
-</script>
 
+/* ========= REGISTRA SERVICE WORKER ========= */
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function () {
+    navigator.serviceWorker.register('./service-worker.js')
+      .catch(function (err) {
+        console.log('Service Worker error:', err);
+      });
+  });
+}
+</script>
 </body>
 </html>
